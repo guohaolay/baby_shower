@@ -5,7 +5,8 @@ function App() {
   return (
     <>
       <img src={logo} />
-      <h1>Andrew's baby shower: Declan's First Flight</h1>
+      <h1>Declan's First Flight</h1>
+      <p>Andrew's baby shower</p>
       <p>Date: 03/21/2026</p>
       <p>Time: 12pm - 3pm</p>
       <p>Location: 11209 12th ave NE, Seattle WA 98125</p>
