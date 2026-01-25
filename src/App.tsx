@@ -1,11 +1,10 @@
-import logo from './assets/logo.png'
+
 import './App.css'
 import { HotBalloon } from './Components/HotBalloon'
 
 function App() {
   return (
     <>
-      <img src={logo} />
       <HotBalloon />
       <h1>Declan's First Flight</h1>
       <p>Andrew's baby shower</p>
