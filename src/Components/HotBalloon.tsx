@@ -64,6 +64,7 @@ export const HotBalloon = () => {
             engine: engine,
             options: {
                 wireframes: false,
+                background: 'transparent'
             }
         });
 
