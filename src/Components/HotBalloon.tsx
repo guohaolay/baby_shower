@@ -1,36 +1,31 @@
-import { Engine, Events, Render, Runner, Bodies, Composite, Constraint, World, Mouse, MouseConstraint, Body } from "matter-js";
+import { Engine, Events, Render, Runner, Bodies, Composite, Constraint, Mouse, MouseConstraint, Body } from "matter-js";
 import { useEffect, useRef } from "react";
 import logo from '../images/balloon.png'
 
 const BALLOON_RADIUS = 50;
 
 export const HotBalloon = () => {
-    const ref = useRef(null);
+    const ref = useRef<HTMLDivElement>(null);
 
     function createRope(parent: Body, segmentCount: number, segmentSize: number, stiffness: number) {
         const ropeComposite = Composite.create();
-
         const startX = parent.position.x;
         const startY = parent.position.y;
         let previousBody = parent;
 
         for (var i = 0; i < segmentCount; i++) {
-            // Create a new body (e.g., a small rectangle) for the rope segment
             var currentBody = Bodies.rectangle(
                 startX,
                 startY + (i + 1) * segmentSize,
-                1,
+                10,
                 segmentSize,
                 {
-                    density: 0.001, // Lower density makes it less like a heavy chain
+                    density: 0.001,
                     frictionAir: 0.5,
                     collisionFilter: { group: -1 },
-                    render: {
-                        visible: false
-                    }
+                    render: { visible: false }
                 });
 
-            // Add the current body to the world
             Composite.add(ropeComposite, currentBody);
 
             var constraint = Constraint.create({
@@ -40,12 +35,10 @@ export const HotBalloon = () => {
                     pointA: { x: 0, y: BALLOON_RADIUS },
                     pointB: { x: 0, y: -segmentSize / 2 }
                 } : {}),
-                length: segmentSize, // The resting length of the constraint
-                stiffness: stiffness, // Controls how much the rope can stretch
-                damping: 0.5, // Adds some resistance to oscillation
-                render: {
-                    visible: false
-                }
+                length: segmentSize,
+                stiffness: stiffness,
+                damping: 0.5,
+                render: { visible: false }
             });
 
             Composite.add(ropeComposite, constraint);
@@ -56,113 +49,115 @@ export const HotBalloon = () => {
     }
 
     const createBalloon = (startX: number, startY: number) => {
-        const balloon = Bodies.circle(startX, startY, BALLOON_RADIUS, {
-            collisionFilter: { group: -1 },
-            sleepThreshold: -1, // Prevents the balloon from ever falling asleep
+        // 1. Smaller physics radius (the "hitbox")
+        const HITBOX_RADIUS = BALLOON_RADIUS * 0.9;
+
+        const balloonBody = Bodies.circle(startX, startY, HITBOX_RADIUS, {
+            collisionFilter: { category: 0x0001 },
+            sleepThreshold: -1,
             frictionAir: 0.05,
+            restitution: 0.7,
             render: {
                 sprite: {
                     texture: logo,
-                    xScale: 1,
-                    yScale: 1,
+                    // 2. Scale the image up so it is larger than the hitbox
+                    xScale: 1.15,
+                    yScale: 1.15,
                 }
             }
         });
-        const rope = createRope(balloon, 5, 30, 1);
-        return {
-            balloon,
-            rope,
-        };
+
+        // Note: The rope still needs to attach to the bottom of the VISUAL balloon
+        // so we use the full BALLOON_RADIUS for the attachment math.
+        const rope = createRope(balloonBody, 5, 30, 1);
+
+        return { body: balloonBody, rope: rope };
     }
 
     useEffect(() => {
-        if (!ref.current) {
-            return;
-        }
-        // create an engine
-        var engine = Engine.create();
+        if (!ref.current) return;
 
-        // create a renderer
+        var engine = Engine.create();
         var render = Render.create({
             element: ref.current,
             engine: engine,
             options: {
                 wireframes: false,
-                background: 'transparent'
+                background: 'transparent',
+                width: 800,
+                height: 600
             }
         });
 
-        // create two boxes and a ground
         var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
-        const balloon = createBalloon(400, 80);
 
-        // add all of the bodies to the world
-        Composite.add(engine.world, [ground, balloon.balloon, balloon.rope]);
+        // --- MULTIPLE BALLOONS SETUP ---
+        const balloonPositions = [
+            { x: 200, y: 100 },
+            { x: 400, y: 150 },
+            { x: 600, y: 80 }
+        ];
 
-        // run the renderer
+        const balloons = balloonPositions.map(pos => createBalloon(pos.x, pos.y));
+
+        // Add everything to the world
+        balloons.forEach(b => {
+            Composite.add(engine.world, [b.body, b.rope]);
+        });
+        Composite.add(engine.world, [ground]);
+
         Render.run(render);
-
-        // create runner
         var runner = Runner.create();
-
-        // run the engine
         Runner.run(runner, engine);
 
-        // add mouse interactivity
         const mouse = Mouse.create(render.canvas);
         const mouseConstraint = MouseConstraint.create(engine, {
             mouse: mouse,
-            constraint: {
-                stiffness: 0.2,
-                render: {
-                    visible: false
-                }
-            }
+            constraint: { stiffness: 0.2, render: { visible: false } }
         });
-
         Composite.add(engine.world, mouseConstraint);
-        render.mouse = mouse;
 
+        // --- PHYSICS UPDATE (BUOYANCY) ---
         Events.on(engine, 'beforeUpdate', () => {
-            const force = 0.01; // Lower force is usually better for smooth floating
-            const balloonTop = balloon.balloon.bounds.min.y;
-
-            // Only apply upward force if we haven't hit the top of the canvas
-            if (balloonTop > 0) {
-                Body.applyForce(balloon.balloon, balloon.balloon.position, { x: 0, y: -force });
-            }
+            const force = 0.01;
+            balloons.forEach(b => {
+                const balloonTop = b.body.bounds.min.y;
+                if (balloonTop > 0) {
+                    Body.applyForce(b.body, b.body.position, { x: 0, y: -force });
+                }
+            });
         });
 
+        // --- CUSTOM RENDERING (ROPES) ---
         Events.on(render, 'afterRender', () => {
             const context = render.context;
-            const parent = balloon.balloon;
-            const segments = Composite.allBodies(balloon.rope);
 
-            // Use trigonometry to find the point on the circle's edge relative to rotation
-            // BALLOON_RADIUS is the distance from center, parent.angle is the rotation in radians
-            const attachX = parent.position.x + Math.sin(-parent.angle) * BALLOON_RADIUS;
-            const attachY = parent.position.y + Math.cos(parent.angle) * BALLOON_RADIUS;
+            balloons.forEach(b => {
+                const parent = b.body;
+                const segments = Composite.allBodies(b.rope);
 
-            context.beginPath();
-            context.moveTo(attachX, attachY);
+                const attachX = parent.position.x + Math.sin(-parent.angle) * BALLOON_RADIUS;
+                const attachY = parent.position.y + Math.cos(parent.angle) * BALLOON_RADIUS;
 
-            // 3. Draw to the first segment
-            const firstSegment = segments[0];
-            context.lineTo(firstSegment.position.x, firstSegment.position.y);
+                context.beginPath();
+                context.moveTo(attachX, attachY);
 
-            // 4. Continue through the rest of the segments
-            for (let i = 1; i < segments.length; i++) {
-                const xc = (segments[i].position.x + segments[i - 1].position.x) / 2;
-                const yc = (segments[i].position.y + segments[i - 1].position.y) / 2;
-                context.quadraticCurveTo(segments[i - 1].position.x, segments[i - 1].position.y, xc, yc);
-            }
+                const firstSegment = segments[0];
+                context.lineTo(firstSegment.position.x, firstSegment.position.y);
 
-            const lastPoint = segments[segments.length - 1];
-            context.lineTo(lastPoint.position.x, lastPoint.position.y);
+                for (let i = 1; i < segments.length; i++) {
+                    const xc = (segments[i].position.x + segments[i - 1].position.x) / 2;
+                    const yc = (segments[i].position.y + segments[i - 1].position.y) / 2;
+                    context.quadraticCurveTo(segments[i - 1].position.x, segments[i - 1].position.y, xc, yc);
+                }
 
-            context.strokeStyle = "#8B4513";
-            context.lineWidth = 2;
-            context.stroke();
+                const lastPoint = segments[segments.length - 1];
+                context.lineTo(lastPoint.position.x, lastPoint.position.y);
+
+                context.strokeStyle = "#8B4513";
+                context.lineWidth = 2;
+                context.stroke();
+            });
         });
 
         return () => {
@@ -170,10 +165,8 @@ export const HotBalloon = () => {
             Runner.stop(runner);
             Engine.clear(engine);
             render.canvas.remove();
-            render.textures = {};
         };
-    }, [ref.current]);
+    }, []);
 
-    return <section ref={ref}></section>
-
+    return <section ref={ref}></section>;
 }
