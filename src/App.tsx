@@ -1,6 +1,7 @@
 
 import './App.css'
 import { HotBalloon } from './Components/HotBalloon'
+import { RSVPForm } from './Components/RSVPForm'
 
 function App() {
   return (
@@ -11,9 +12,8 @@ function App() {
       <p>Date: 03/21/2026</p>
       <p>Time: 12pm - 3pm</p>
       <p>Location: 11209 12th ave NE, Seattle WA 98125</p>
-      // TODO: RSVP form
-    // TODO: Baby registry
-    // TODO: https://developers.google.com/apps-script/guides/web
+      <a href="https://www.amazon.com/baby-reg/andrew-lay-may-2026-seattle/27MUHW5NPQ04U">Baby registry</a>
+      <RSVPForm />
     </>
   )
 }
