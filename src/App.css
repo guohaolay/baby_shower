@@ -1,8 +1,22 @@
+:root {
+  --padding: 20px;
+  --radius: 15px;
+  --labelColor: #999;
+  --dottedLine: 2px dotted var(--labelColor);
+}
+
 body {
   padding: 0;
   margin: 0;
-
+  font-size: 16px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: linear-gradient(to bottom, #8bc8fd, #007bff);
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 1.5em; /* Example larger size for desktop H1 */
+    }
+  }
 }
 
 #root {
@@ -10,3 +24,46 @@ body {
   padding: 2rem;
   text-align: center;
 }
+
+.segment {
+  width: 100%;
+  padding: var(--padding);
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+h1 {
+  background: red;
+  margin: 0;
+  font-size: 2em;
+}
+
+#ticket {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  color: black;
+}
+
+dl {
+  display: flex;
+  flex-direction: column;
+  color: var(--labelColor);
+  margin: 0;
+
+  dt, dd {
+    text-align: left;
+    margin: 5px 0;
+  }
+
+  dd {
+    color: black;
+    border-bottom: var(--dottedLine);
+    padding-bottom: 5px;
+    font-size: 1em;
+  }
+}
+
+
