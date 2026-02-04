@@ -6,6 +6,9 @@ form {
     color: var(--labelColor);
     text-align: left;
     margin: 5px 0;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8em;
   }
 
   input[type="text"], input[type="email"], select {
@@ -18,39 +21,46 @@ form {
     margin: 5px 0;
   }
 
-  #baggage-counter {
+  footer {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: row;
     gap: 30px;
-    width: 100%;
-    text-align: center;
-    font-size: 2em;
+    margin-top: 30px;
 
-    #plus-one {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 30px;
-      height: 30px;
-      border: 2px solid #333;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
+    button {
+      flex: 1;
+      height: 40px;
+      color: white;
+      font-weight: bold;
+      border-radius: var(--radius);
+      display: flex;
       justify-content: center;
-      cursor: pointer;
-      background-color: white;
-      font-size: 1em;
+      align-items: center;
+      gap: 5px;
     }
 
-    /* Default state: Plus */
-    #plus-one::before {
-      content: "+";
-      color: #333;
+    #checkin-btn {
+      background-color: #5ab931;
+
+      &:hover {
+        background-color: #2ecc71 ;
+      }
+
+      &:active {
+        background-color: #3f8f29;
+      }
     }
 
-    /* Checked state: Minus */
-    #plus-one:checked::before {
-      content: "−";
+    #decline-btn {
+      background-color: #e51a1a;
+
+      &:hover {
+        background-color: #e74c3c  ;
+      }
+
+      &:active {
+        background-color: #bf1029 ;
+      }
     }
   }
 }

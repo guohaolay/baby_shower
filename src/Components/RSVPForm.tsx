@@ -1,31 +1,36 @@
 import { useState } from "react";
 import "./RSVPForm.css";
-import baggage from "../images/baggage.png";
+import person from "../images/person.png";
 
 export const RSVPForm = () => {
-  const [attendance, setAttendance] = useState(true);
-  const [hasPlusOne, setHasPlusOne] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleAttendance = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setAttendance(e.target.value === "yes");
-  };
+  const [plusOne, setPlusOne] = useState(false);
 
   const handlePlusOne = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHasPlusOne(e.target.checked);
+    setPlusOne(e.target.checked);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+
+    const submitter = (e.nativeEvent as SubmitEvent)
+      .submitter as HTMLButtonElement;
+    const isCheckingIn = submitter.value === "checkin";
+
     const formData = new FormData(e.currentTarget);
 
-    const data = {
-      attending: formData.get("attend") === "yes",
-      hasGuest: formData.get("plus-one") === "1",
-      email: formData.get("email"),
-      name: formData.get("name"),
-    };
+    const data = isCheckingIn
+      ? {
+          attending: "yes",
+          hasGuest: plusOne ? "yes" : "no",
+          email: formData.get("email"),
+          name: formData.get("name"),
+        }
+      : {
+          attending: "no",
+          name: formData.get("name"),
+        };
 
     try {
       await fetch(
@@ -46,46 +51,52 @@ export const RSVPForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <label htmlFor="name">Passenger:</label>
-      <input type="text" name="name" id="name" required disabled={isLoading} />
-      <label htmlFor="attend">Check-in</label>
-      <select
-        name="attend"
-        id="attend"
-        onChange={handleAttendance}
+      <label htmlFor="name">Passenger name:</label>
+      <input
+        type="text"
+        name="name"
+        id="name"
+        required
         disabled={isLoading}
-      >
-        <option value="yes">Checked In</option>
-        <option value="no">Flight Cancelled</option>
-      </select>
-      {attendance && (
-        <>
-          <label htmlFor="plus-one">Baggage</label>
-          <div id="baggage-counter">
-            <input
-              type="checkbox"
-              name="plus-one"
-              id="plus-one"
-              value="1"
-              disabled={isLoading}
-              onChange={handlePlusOne}
-            />
-            {hasPlusOne ? 1 : 0}/1
-            <img src={baggage} width="50" />
-          </div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            required
-            disabled={isLoading}
-          />
-        </>
-      )}
-      <button type="submit" disabled={isLoading}>
-        Submit
-      </button>
+        placeholder="Your name here"
+      />
+      <label htmlFor="email">Email:</label>
+      <input
+        type="email"
+        name="email"
+        id="email"
+        required
+        disabled={isLoading}
+        placeholder="Your email here"
+      />
+      <label>
+        <input
+          type="checkbox"
+          name="plus-one"
+          onChange={handlePlusOne}
+          checked={plusOne}
+        />
+        Use companion pass
+      </label>
+      <footer>
+        <button
+          type="submit"
+          disabled={isLoading}
+          id="decline-btn"
+          value="decline"
+        >
+          Decline
+        </button>
+        <button
+          type="submit"
+          disabled={isLoading}
+          id="checkin-btn"
+          value="checkin"
+        >
+          <span>Check in</span> <img src={person} height={20} />{" "}
+          {plusOne ? <img src={person} height={20} /> : null}
+        </button>
+      </footer>
     </form>
   );
 };

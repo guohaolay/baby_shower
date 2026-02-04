@@ -1,31 +1,41 @@
 import "./App.css";
 // import { HotBalloon } from "./Components/HotBalloon";
+import logo from "./images/logo.png";
 import { RSVPForm } from "./Components/RSVPForm";
 
 function App() {
   return (
-    <>
+    <main>
       {/* <HotBalloon /> */}
-      <h1 className="segment">Stork Skyway</h1>
+      <h1 className="segment">
+        <img src={logo} height={60} />
+        Stork Skyway
+      </h1>
       <section id="ticket" className="segment">
+        <p>
+          Paging all passengers! You are cleared for arrival at Declan’s Baby
+          Shower. Please check in below to secure your seat on this special
+          flight.
+        </p>
         <dl>
-          <dt>Departure date:</dt>
-          <dd>03/21/2026 12:00 PM</dd>
-          <dt>Time:</dt>
-          <dd>12:00 - 15:00</dd>
+          <dt>Departure:</dt>
+          <dd>March 21 2026 from 12:00 PM - 15:00 PM</dd>
+          <dt>Cargo:</dt>
+          <dd>
+            Help stock our in-flight{" "}
+            <a href="https://www.amazon.com/baby-reg/andrew-lay-may-2026-seattle/27MUHW5NPQ04U">
+              essentials
+            </a>
+          </dd>
           <dt>Destination:</dt>
           <dd>
-            <a href="https://maps.app.goo.gl/vtwt4mbqKFshrfyG8">
-              11209 12th ave NE, Seattle WA 98125
-            </a>
+            11209 12th ave NE, Seattle WA 98125{" "}
+            <a href="https://maps.app.goo.gl/vtwt4mbqKFshrfyG8">map </a>
           </dd>
         </dl>
         <RSVPForm />
-        <a href="https://www.amazon.com/baby-reg/andrew-lay-may-2026-seattle/27MUHW5NPQ04U">
-          Baby registry
-        </a>
       </section>
-    </>
+    </main>
   );
 }
 

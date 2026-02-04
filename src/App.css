@@ -1,8 +1,17 @@
 :root {
   --padding: 20px;
   --radius: 15px;
-  --labelColor: #999;
+  --labelColor: #333;
   --dottedLine: 2px dotted var(--labelColor);
+}
+
+main {
+  width: 500px;
+  padding: 25px;
+  background-color: rgb(13, 13, 80);
+  margin: 0 auto;
+  box-shadow: 0 0 25px;
+  border-radius: var(--radius);
 }
 
 body {
@@ -10,11 +19,11 @@ body {
   margin: 0;
   font-size: 16px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: linear-gradient(to bottom, #8bc8fd, #007bff);
+  background: url(./images/bkg.jpg);
 
   @media (min-width: 768px) {
     h1 {
-      font-size: 1.5em; /* Example larger size for desktop H1 */
+      font-size: 1.5em;
     }
   }
 }
@@ -32,19 +41,24 @@ body {
   border-radius: var(--radius);
   max-width: 500px;
   margin: 0 auto;
+  background: white;
 }
 
 h1 {
-  background: red;
   margin: 0;
   font-size: 2em;
+  display: flex;
+  text-align: left;
+  align-items: center;
+  gap: 15px;
+  border-bottom: var(--dottedLine)
 }
 
 #ticket {
   display: flex;
   flex-direction: column;
-  background: white;
   color: black;
+  background-image: linear-gradient(rgba(255,255,255, 0.8), rgba(255,255,255, 0.8)), url('./images/corner.png');
 }
 
 dl {
@@ -52,6 +66,12 @@ dl {
   flex-direction: column;
   color: var(--labelColor);
   margin: 0;
+
+  dt {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 0.8em;
+  }
 
   dt, dd {
     text-align: left;
