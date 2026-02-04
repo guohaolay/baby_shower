@@ -4,7 +4,18 @@ import person from "../images/person.png";
 
 export const RSVPForm = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [plusOne, setPlusOne] = useState(false);
+
+  // 1. Initialize state from LocalStorage if it exists
+  const [formDataState, setFormDataState] = useState(() => {
+    const saved = localStorage.getItem("stork-skyway-rsvp");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // Track if we are currently looking at the form or the "ticket"
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Track plusOne separately for the UI icons
+  const [plusOne, setPlusOne] = useState(formDataState?.hasGuest || false);
 
   const handlePlusOne = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPlusOne(e.target.checked);
@@ -17,24 +28,21 @@ export const RSVPForm = () => {
     const submitter = (e.nativeEvent as SubmitEvent)
       .submitter as HTMLButtonElement;
     const isCheckingIn = submitter.value === "checkin";
-
     const formData = new FormData(e.currentTarget);
 
-    const data = isCheckingIn
-      ? {
-          attending: "yes",
-          hasGuest: plusOne ? "yes" : "no",
-          email: formData.get("email"),
-          name: formData.get("name"),
-        }
-      : {
-          attending: "no",
-          name: formData.get("name"),
-        };
+    const data = {
+      // Keep existing UUID if editing, otherwise generate new one
+      uuid: formDataState?.uuid || crypto.randomUUID(),
+      attending: isCheckingIn,
+      hasGuest: plusOne,
+      email: formData.get("email"),
+      name: formData.get("name"),
+      updatedAt: new Date().toISOString(),
+    };
 
     try {
       await fetch(
-        "https://script.google.com/macros/s/AKfycbx8ipWk9Les5GFHGpzZLS8shzWOnLVs7zFAV6Op1dOVy-2gLB7eFBzpOdFaMPnWhNhl8g/exec",
+        "https://script.google.com/macros/s/AKfycbw0Hk-sOysKYBiAiDQgS3p0aoi89Ioguo7Ype2MjFY0B9aDWn5rXPCWgEVseFeEWVn5dQ/exec",
         {
           method: "POST",
           mode: "no-cors",
@@ -42,13 +50,41 @@ export const RSVPForm = () => {
           body: JSON.stringify(data),
         },
       );
-      alert("TODO: RSVP Sent! See you there!");
-      setIsLoading(false);
+
+      localStorage.setItem("stork-skyway-rsvp", JSON.stringify(data));
+      setFormDataState(data);
+      setIsEditing(false); // Go back to the "Ticket" view
     } catch (err) {
       console.error("Error!", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // 2. Show the "Ticket" view if data exists and we aren't editing
+  if (formDataState && !isEditing) {
+    return (
+      <form>
+        <p>
+          {formDataState.attending ? "✅ Checked In" : "❌ Flight Cancelled"}
+          <br />
+          Passenger: {formDataState.name}
+          {plusOne ? " + 1" : ""}
+          <br />
+          Email: {formDataState.email}
+          <br />
+          Confirmation: <code>{formDataState.uuid.slice(0, 8)}</code>
+        </p>
+        <footer>
+          <button onClick={() => setIsEditing(true)} id="edit-btn">
+            Edit Flight Details
+          </button>
+        </footer>
+      </form>
+    );
+  }
+
+  // 3. The Form (with defaultValue for auto-fill)
   return (
     <form onSubmit={handleSubmit}>
       <label htmlFor="name">Passenger name:</label>
@@ -58,8 +94,9 @@ export const RSVPForm = () => {
         id="name"
         required
         disabled={isLoading}
-        placeholder="Your name here"
+        defaultValue={formDataState?.name || ""}
       />
+
       <label htmlFor="email">Email:</label>
       <input
         type="email"
@@ -67,17 +104,20 @@ export const RSVPForm = () => {
         id="email"
         required
         disabled={isLoading}
-        placeholder="Your email here"
+        defaultValue={formDataState?.email || ""}
       />
-      <label>
+
+      <label className="checkbox-label">
         <input
           type="checkbox"
           name="plus-one"
           onChange={handlePlusOne}
           checked={plusOne}
+          disabled={isLoading}
         />
         Use companion pass
       </label>
+
       <footer>
         <button
           type="submit"
@@ -93,8 +133,9 @@ export const RSVPForm = () => {
           id="checkin-btn"
           value="checkin"
         >
-          <span>Check in</span> <img src={person} height={20} />{" "}
-          {plusOne ? <img src={person} height={20} /> : null}
+          <span>{formDataState ? "Update" : "Check in"}</span>
+          <img src={person} height={20} alt="person icon" />
+          {plusOne && <img src={person} height={20} alt="companion icon" />}
         </button>
       </footer>
     </form>

@@ -19,15 +19,19 @@ form {
     font-size: 1em;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     margin: 5px 0;
+    padding-left: 10px;
   }
 
   footer {
     display: flex;
     flex-direction: row;
     gap: 30px;
-    margin-top: 30px;
-
-    button {
+    margin-top: 10px;
+    justify-content: center;
+  }
+  
+  button {
+      max-width: 50%;
       flex: 1;
       height: 40px;
       color: white;
@@ -39,6 +43,22 @@ form {
       gap: 5px;
     }
 
+    #edit-btn {
+      background-color: #3498db;
+
+      &:hover {
+        background-color: #5dade2 ;
+      }
+
+      &:active {
+        background-color: #2980b9;
+      }
+
+      &:disabled {
+        background-color: #bdc3c7;
+      }
+    }
+
     #checkin-btn {
       background-color: #5ab931;
 
@@ -48,6 +68,10 @@ form {
 
       &:active {
         background-color: #3f8f29;
+      }
+
+      &:disabled {
+        background-color: #bdc3c7;
       }
     }
 
@@ -61,6 +85,9 @@ form {
       &:active {
         background-color: #bf1029 ;
       }
+
+      &:disabled {
+        background-color: grey;
+      }
     }
-  }
 }
