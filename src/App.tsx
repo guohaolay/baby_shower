@@ -13,9 +13,9 @@ function App() {
       </h1>
       <section id="ticket" className="segment">
         <p>
-          Paging all passengers! You are cleared for arrival at Declan’s Baby
-          Shower. Please check in below to secure your seat on this special
-          flight.
+          Paging all passengers! You are cleared for arrival at Declan's Baby
+          Shower. Please <strong>check in by March 1st</strong> to secure your
+          seat on this special flight and finalize our flight manifest.
         </p>
         <dl>
           <dt>Departure:</dt>
