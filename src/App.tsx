@@ -63,7 +63,33 @@ function App() {
             </p>
           </>
         ) : (
-          <p>Check-in is now closed.</p>
+          <>
+            <p>Check-in is now closed.</p>
+            <dl>
+              <dt>Departure:</dt>
+              <dd>March 21 2026 from 12:00 PM - 15:00 PM</dd>
+              <dt>Cargo:</dt>
+              <dd>
+                Help stock our in-flight baby{" "}
+                <a
+                  href="https://www.amazon.com/baby-reg/andrew-lay-may-2026-seattle/27MUHW5NPQ04U"
+                  target="_blank"
+                >
+                  essentials
+                </a>
+              </dd>
+              <dt>Destination:</dt>
+              <dd>
+                11209 12th ave NE, Seattle WA 98125{" "}
+                <a
+                  href="https://maps.app.goo.gl/vtwt4mbqKFshrfyG8"
+                  target="_blank"
+                >
+                  map{" "}
+                </a>
+              </dd>
+            </dl>
+          </>
         )}
       </section>
     </main>
